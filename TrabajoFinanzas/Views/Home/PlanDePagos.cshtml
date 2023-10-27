@@ -1,0 +1,304 @@
+﻿@{
+    ViewData["Title"] = "¨Plan de pagos";
+}
+<!DOCTYPE html>
+<html>
+<head>
+
+    <style>
+        .conten { /*BODY HTML AL LADO IZQUIERDO*/
+            font-size: 15px;
+            /*text-align: center;   Centrar el contenido del div */
+        }
+
+        table {
+            width: 80%; /* Ancho de la tabla al 100% del div */
+            border-collapse: collapse; /* Colapsar todos los bordes */
+        }
+
+        th, td {
+            padding: 5px 5px;
+            font-size: 15px;
+            border: 1px solid #000; /* Borde para todas las celdas */
+            text-align: center; /* Centrar el contenido horizontalmente */
+            vertical-align: middle; /* Centrar el contenido verticalmente */
+        }
+
+        /* Estilos adicionales para el encabezado */
+        th {
+            background-color: #f2f2f2; /* Color de fondo */
+        }
+
+
+        /*BOTENES -------------------------------------------------------------------*/
+
+        .calcular {
+            padding: 7px 18px;
+            border-radius: 5px;
+            color: white;
+            background: #4A890F
+        }
+
+        .limpiar {
+            padding: 7px 18px;
+            border-radius: 5px;
+            color: white;
+            background: #4A890F
+        }
+
+        .pdf {
+            padding: 7px 18px;
+            border-radius: 5px;
+            color: white;
+            background: #4A890F
+        }
+
+        .tabla {
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h5>
+        <div style="text-align: center;">Plan de pagos del crédito vehicular en Perú</div>
+    </h5>
+    <hr />
+    <div class="conten">
+        <form id="formulario">
+
+            <label for="tipoCarro">Vehiculo:</label>
+            <select id="tipoCarro" name="tipoCarro">
+                <option value="Nuevo">Vehiculo Nuevo</option>
+                <option value="Seminuevo">Vehiculo Seminuevo</option>
+                <option value="Electrico">Vehiculo Electrico</option>
+            </select><br><br>
+
+            <label for="tipoBanco">Centro financiera:</label>
+            <select id="tipoBanco" name="tipoBanco">
+                <!--BANCOS-->
+                <option value="banco1">BANBIF</option>
+                <option value="banco2">BANCO DE CREDITO</option>
+                <option value="banco3">BANCO GNB</option>
+                <option value="banco4">BANCO PICHINCHA</option>
+                <option value="banco5">BBVA</option>
+                <option value="banco6">INTERBANK</option>
+                <option value="banco7">SCOTIABANK PERU</option>
+                <!--EMPRESAS FINANCIERAS-->
+                <option value="banco8">FINANC.PROEMPRESA</option>
+                <option value="banco9">MITSUIAUTO FINANCE</option>
+                <!--CAJAS MUNICIPALES-->
+                <option value="banco10">CMAC AREQUIPA</option>
+                <option value="banco11">CMAC CUSCO</option>
+                <option value="banco12">CMAC DEL SANTA</option>
+                <option value="banco13">CMAC HUANCAYO</option>
+                <option value="banco14">CMAC ICA</option>
+            </select><br><br>
+
+            <label for="tipoMoneda">Tipo de Moneda:</label>
+            <select id="tipoMoneda" name="tipoMoneda">
+                <option value="dolar">Dólares</option>
+                <option value="soles">Soles</option>
+            </select><br><br>
+
+            <label for="costoVehiculo">Costo del Vehículo:</label>
+            <input type="number" id="costoVehiculo" name="costoVehiculo" required><br><br>
+
+            <label for="cuotaInicial">Cuota Inicial:</label>
+            <input type="number" id="cuotaInicial" name="cuotaInicial" step="0.01" required><br><br>
+
+            <label for="plazoMeses">Cuotas en Meses:</label>
+            <input type="number" id="plazoMeses" name="plazoMeses" required><br><br>
+
+            <label for="tea">Tasa de Interés Anual (TEA):</label>
+            <input type="number" id="tea" name="tea" step="0.01" required><br><br>
+
+            <div style="text-align: center;">
+                <input class="calcular" type="submit" value="Calcular">
+                <button class="limpiar" type="button" id="limpiar">Simular de Nuevo</button>
+                <button class="pdf" type="button" id="pdf">Generar PDF</button>
+            </div>
+
+        </form>
+        <hr />
+        <h5>
+            <div style="text-align: center;">Mis planes de pagos mensuales</div>
+        </h5>
+        <hr />
+        <table id="tablaPlanPagos">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Cuota Mensual</th>
+                    <th>Interés Mensual</th>
+                    <th>Amortización</th>
+                    <th>Saldo Final</th>
+                </tr>
+            </thead>
+
+            <tbody class="tabla">
+                <!--IMPRIMIR-->
+            </tbody>
+
+            <tfoot>
+                <tr>
+
+                    <th>Total</th>
+                    <th id="totalCuotaMensual">0.00</th>
+                    <th id="totalInteresMensual">0.00</th>
+                    <th id="totalAmortizacion">0.00</th>
+                    <th id="totalSaldoFinal">0.00</th>
+
+                </tr>
+            </tfoot>
+        </table>
+        <hr />
+    </div>
+
+    <script>
+        document.getElementById("formulario").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const tipoMoneda = document.getElementById("tipoMoneda").value;
+            const costoVehiculo = parseFloat(document.getElementById("costoVehiculo").value);
+            const plazoMeses = parseInt(document.getElementById("plazoMeses").value);
+            const cuotaInicial = parseFloat(document.getElementById("cuotaInicial").value);
+            const bancoSeleccionado = document.getElementById("tipoBanco").value;
+            const tea = parseFloat(document.getElementById("tea").value);
+
+            // Verificar si la TEA está dentro del rango permitido   SINO alerta
+            if (tea < rangosTEA[bancoSeleccionado].min || tea > rangosTEA[bancoSeleccionado].max) {
+                alert(`La TEA debe estar entre ${rangosTEA[bancoSeleccionado].min}% y ${rangosTEA[bancoSeleccionado].max}% para ${bancoSeleccionado}.`);
+                return;
+            }
+
+            const planPagos = generarPlanPagos(tipoMoneda, costoVehiculo, plazoMeses, tea, cuotaInicial);
+            mostrarPlanPagos(planPagos, tipoMoneda);
+        });
+
+        document.getElementById("limpiar").addEventListener("click", function () {
+            document.getElementById("tipoMoneda").value = "dolar";
+            document.getElementById("costoVehiculo").value = "";
+            document.getElementById("plazoMeses").value = "";
+            document.getElementById("tea").value = "";
+            document.getElementById("cuotaInicial").value = "";
+
+            const tablaPlanPagos = document.getElementById("tablaPlanPagos").getElementsByTagName('tbody')[0];
+            tablaPlanPagos.innerHTML = '';
+
+            document.getElementById("totalCuotaMensual").textContent = "0.00";
+            document.getElementById("totalInteresMensual").textContent = "0.00";
+            document.getElementById("totalAmortizacion").textContent = "0.00";
+            document.getElementById("totalSaldoFinal").textContent = "0.00";
+        });
+
+        function mostrarPlanPagos(planPagos, tipoMoneda) {
+            const tablaPlanPagos = document.getElementById("tablaPlanPagos").getElementsByTagName('tbody')[0];
+            tablaPlanPagos.innerHTML = '';
+
+            let totalCuotaMensual = 0;
+            let totalInteresMensual = 0;
+            let totalAmortizacion = 0;
+            let saldoFinal = parseFloat(document.getElementById("costoVehiculo").value); // Inicializa el saldo final
+
+            planPagos.forEach(function (pago) {
+                const fila = tablaPlanPagos.insertRow();
+                const mesCell = fila.insertCell(0);
+                const cuotaCell = fila.insertCell(1);
+                const interesCell = fila.insertCell(2);
+                const amortizacionCell = fila.insertCell(3);
+                const saldoFinalCell = fila.insertCell(4);
+
+                mesCell.innerHTML = pago.mes;
+                cuotaCell.innerHTML = tipoMoneda === "dolar" ? "$" + pago.cuotaMensual.toFixed(2) : "S/ " + pago.cuotaMensual.toFixed(2);
+                interesCell.innerHTML = tipoMoneda === "dolar" ? "$" + pago.interesMensual.toFixed(2) : "S/ " + pago.interesMensual.toFixed(2);
+                amortizacionCell.innerHTML = tipoMoneda === "dolar" ? "$" + pago.amortizacion.toFixed(2) : "S/ " + pago.amortizacion.toFixed(2);
+
+                saldoFinal -= pago.amortizacion; // Calcula el saldo final restando la amortización
+                saldoFinalCell.innerHTML = tipoMoneda === "dolar" ? "$" + saldoFinal.toFixed(2) : "S/ " + saldoFinal.toFixed(2); // Muestra el saldo final actualizado
+
+                totalCuotaMensual += pago.cuotaMensual;
+                totalInteresMensual += pago.interesMensual;
+                totalAmortizacion += pago.amortizacion;
+            });
+
+            document.getElementById("totalCuotaMensual").textContent = tipoMoneda === "dolar" ? "$" + totalCuotaMensual.toFixed(2) : "S/ " + totalCuotaMensual.toFixed(2);
+            document.getElementById("totalInteresMensual").textContent = tipoMoneda === "dolar" ? "$" + totalInteresMensual.toFixed(2) : "S/ " + totalInteresMensual.toFixed(2);
+            document.getElementById("totalAmortizacion").textContent = tipoMoneda === "dolar" ? "$" + totalAmortizacion.toFixed(2) : "S/ " + totalAmortizacion.toFixed(2);
+            document.getElementById("totalSaldoFinal").textContent = tipoMoneda === "dolar" ? "$" + saldoFinal.toFixed(2) : "S/ " + saldoFinal.toFixed(2);
+        }
+
+        function calcularCuotaMensual(tipoMoneda, costoVehiculo, plazoMeses, tea) {
+            const tasaMensual = (Math.pow(1 + tea / 100, 1 / 12) - 1) * 100;
+            const numerador = costoVehiculo * (tasaMensual / 100);
+            const denominador = 1 - Math.pow(1 + tasaMensual / 100, -plazoMeses);
+            const cuotaMensual = numerador / denominador;
+            return cuotaMensual;
+        }
+
+        function generarPlanPagos(tipoMoneda, costoVehiculo, plazoMeses, tea, cuotaInicial) {
+            costoVehiculo -= cuotaInicial;
+
+            const cuotaMensual = calcularCuotaMensual(tipoMoneda, costoVehiculo, plazoMeses, tea);
+
+            const planPagos = [];
+            let saldoFinal = costoVehiculo;
+
+            for (let mes = 1; mes <= plazoMeses; mes++) {
+                const interesMensual = (saldoFinal * tea) / 100 / 12;
+                const amortizacion = cuotaMensual - interesMensual;
+
+                planPagos.push({
+                    mes,
+                    cuotaMensual,
+                    interesMensual,
+                    amortizacion,
+                });
+
+                saldoFinal -= amortizacion;
+            }
+
+            return planPagos;
+        }
+
+        // Definir rangos de TEA por banco
+        const rangosTEA = {
+            //BANCOS
+            banco1: { min: 8.99, max: 24.99 },
+            banco2: { min: 10.64, max: 17.15 },
+            banco3: { min: 10.50, max: 11.90 },
+            banco4: { min: 11.99, max: 19.99 },
+            banco5: { min: 8.49, max: 24.99 },
+            banco6: { min: 14.09, max: 14.09 },
+            banco7: { min: 8.99, max: 14.99 },
+            //EMPRESAS FINANCIERAS
+            banco8: { min: 0.1, max: 20.89 },
+            banco9: { min: 10.99, max: 32.49 },
+            //CAJAS
+            banco10: { min: 15.53, max: 15.53 },
+            banco11: { min: 15.39, max: 15.39 },
+            banco12: { min: 0.1, max: 2000 },
+            banco13: { min: 26.82, max: 77.50 },
+            banco14: { min: 13.60, max: 32.92 },
+        };
+
+                 //Coment
+                 //<!--BANCOS-->
+                 //<option value="banco1" > BANBIF < /option>
+                 //< option value = "banco2" > BANCO DE CREDITO < /option>
+                 //< option value = "banco3" > BANCO GNB < /option>
+                 //< option value = "banco4" > BANCO PICHINCHA < /option>
+                 //< option value = "banco5" > BBVA < /option>
+                 //< option value = "banco6" > INTERBANK < /option>
+                 //< option value = "banco7" > SCOTIABANK PERU < /option>
+                 //< !--EMPRESAS FINANCIERAS-- >
+                 //<option value="banco8" > FINANC.PROEMPRESA < /option>
+                 //< option value = "banco9" > MITSUIAUTO FINANCE < /option>
+                 //< !--CAJAS MUNICIPALES-- >
+                 //<option value=   "banco10" > CMAC AREQUIPA < /option>
+                 //< option value = "banco11" > CMAC CUSCO < /option>
+                 //< option value = "banco12" > CMAC DEL SANTA < /option>
+                 //< option value = "banco13" > CMAC HUANCAYO < /option>
+                 //< option value = "banco14" > CMAC ICA < /option>
+
+    </script>
+</body>
+</html>
