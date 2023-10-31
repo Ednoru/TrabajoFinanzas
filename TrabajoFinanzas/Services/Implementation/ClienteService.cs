@@ -12,14 +12,14 @@ public class ClienteService : IClientService
         _dbFinanzasContext = dbFinanzasContext;
     }
     
-    public async Task<Cliente> GetCliente(string correo, string contrasena)
+    public async Task<Cliente?> GetCliente(string correo, string contrasena)
     {
-        Cliente clienteEncontrado = await _dbFinanzasContext.Clientes.Where(c => c.CorreoElectronico == correo && c.Contrasena == contrasena).FirstOrDefaultAsync();
+        Cliente? clienteEncontrado = await _dbFinanzasContext.Clientes.Where(c => c.CorreoElectronico == correo && c.Contrasena == contrasena).FirstOrDefaultAsync();
 
         return clienteEncontrado;
     }
     
-    public async Task<Cliente> SaveCliente(Cliente modelo)
+    public async Task<Cliente?> SaveCliente(Cliente? modelo)
     {
         _dbFinanzasContext.Clientes.Add(modelo);
         await _dbFinanzasContext.SaveChangesAsync();

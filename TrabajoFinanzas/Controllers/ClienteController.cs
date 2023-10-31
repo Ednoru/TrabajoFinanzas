@@ -29,7 +29,7 @@ namespace TrabajoFinanzas.Controllers
         {
             cliente.Contrasena = Validations.EncryptKey(cliente.Contrasena);
 
-            Cliente clienteCreado = await _clientService.SaveCliente(cliente);
+            Cliente? clienteCreado = await _clientService.SaveCliente(cliente);
 
             if (clienteCreado.IdUser != 0)
             {
@@ -49,7 +49,7 @@ namespace TrabajoFinanzas.Controllers
         [HttpPost]
         public async Task<IActionResult> IniciarSesion(string correo, string contrasena)
         {
-            Cliente clienteEncontrado = await _clientService.GetCliente(correo, Validations.EncryptKey(contrasena));
+            Cliente? clienteEncontrado = await _clientService.GetCliente(correo, Validations.EncryptKey(contrasena));
 
             if (clienteEncontrado == null)
             {
