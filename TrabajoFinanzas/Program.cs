@@ -41,9 +41,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Para mostrar el index y lo demas
-app.MapControllerRoute(
-    name: "cliente",      
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+//app.MapControllerRoute(
+    //name: "cliente",      
+    //pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Para mostrar el registro e inicio de sesion
 app.MapControllerRoute(

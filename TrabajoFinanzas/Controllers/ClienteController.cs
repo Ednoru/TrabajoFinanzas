@@ -49,7 +49,7 @@ namespace TrabajoFinanzas.Controllers
         [HttpPost]
         public async Task<IActionResult> IniciarSesion(string correo, string contrasena)
         {
-            Cliente? clienteEncontrado = await _clientService.GetCliente(correo, Validations.EncryptKey(contrasena));
+            Cliente? clienteEncontrado = await _clientService.GetCliente(correo, contrasena /*Validations.EncryptKey(contrasena)*/);
 
             if (clienteEncontrado == null)
             {
